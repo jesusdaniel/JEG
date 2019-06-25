@@ -1,5 +1,5 @@
 
-# Author: Jesus Arroyo & Shangsi Wang
+# 
 #' Function to perform joint embedding of graphs into d dimensions.
 #' @param A a list of adjacency matrices with the same size n x n
 #' @param d number of embedding dimensions
@@ -12,6 +12,7 @@
 #' \item{lambda}{The loadings of the embedding}
 #' \item{h}{The vector of latent positions of the embedding}
 #' \item{iter}{Number of iterations for finding each component}
+#' @author Jes\'us Arroyo & Shangsi Wang
 multidembed <- function(A,d,maxiter=20,Innitialize=1, verbose = 0, large.and.sparse = FALSE) {
   m <- length(A)
   n <- dim(A[[1]])[1]
@@ -72,9 +73,10 @@ multidembed <- function(A,d,maxiter=20,Innitialize=1, verbose = 0, large.and.spa
 }
 
 
-# Author: Jesus
+
 # Wrapper for embedding method creating multiple random initialization values
 # and running in parallel.
+#' @author Jes\'us Arroyo
 multidembed_random_parallel <- function(A, d, maxiter=20, rand_inits = 10, seed = 777, cl_numClusters = 12) {
   require(parallel)
   cl <- makeCluster(cl_numClusters)
@@ -95,7 +97,6 @@ multidembed_random_parallel <- function(A, d, maxiter=20, rand_inits = 10, seed 
 }
 
 
-# Author: Jesús Arroyo
 #' Function to calculate the loadings for a given list of graphs A and 
 #' @param A list of adjacency matrices of size n x n
 #' @param h latent positions of JEG, of size n x d
