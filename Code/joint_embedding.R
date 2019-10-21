@@ -1,19 +1,22 @@
 
-# 
-#' Function to perform joint embedding of graphs into d dimensions.
-#' @param A a list of adjacency matrices with the same size n x n
-#' @param d number of embedding dimensions
-#' @param maxiter the maximum number of iterations on each step
-#' @param Innitialize value for initialization. 1 = svd on the average. 2 = random, or an array of size n x d to set up to a specific value
-#' @param verbose print output on each iteration. 0 (no output), 1 (output on outer loop) or 2 (output on inner loop)
-#' @param large.and.sparse boolean option to indicate whether function for large and sparse graphs should be used (for best results, only set up to TRUE when elements in A are sparse and large matrices)
-#' @return A list containing the result of the embeding
-#' \item{objective}{A vector with the value of the objective function after each component has been found}
-#' \item{lambda}{The loadings of the embedding}
-#' \item{h}{The vector of latent positions of the embedding}
-#' \item{iter}{Number of iterations for finding each component}
-#' @author Jes\'us Arroyo & Shangsi Wang
+ 
 multidembed <- function(A,d,maxiter=20,Innitialize=1, verbose = 0, large.and.sparse = FALSE) {
+  #' 
+  #' Joint embedding of graphs
+  #' 
+  #' Function to perform joint embedding of graphs into d dimensions.
+  #' @author Jesús Arroyo & Shangsi Wang
+  #' @param A a list of adjacency matrices with the same size n x n
+  #' @param d number of embedding dimensions
+  #' @param maxiter the maximum number of iterations on each step
+  #' @param Innitialize value for initialization. 1 = svd on the average. 2 = random, or an array of size n x d to set up to a specific value
+  #' @param verbose print output on each iteration. 0 (no output), 1 (output on outer loop) or 2 (output on inner loop)
+  #' @param large.and.sparse boolean option to indicate whether function for large and sparse graphs should be used (for best results, only set up to TRUE when elements in A are sparse and large matrices)
+  #' @return A list containing the result of the embeding
+  #' \item{objective}{A vector with the value of the objective function after each component has been found}
+  #' \item{lambda}{The loadings of the embedding}
+  #' \item{h}{The vector of latent positions of the embedding}
+  #' \item{iter}{Number of iterations for finding each component}
   m <- length(A)
   n <- dim(A[[1]])[1]
   result <- list("objective" =rep(0,d),
@@ -73,11 +76,24 @@ multidembed <- function(A,d,maxiter=20,Innitialize=1, verbose = 0, large.and.spa
 }
 
 
-
-# Wrapper for embedding method creating multiple random initialization values
-# and running in parallel.
-#' @author Jes\'us Arroyo
 multidembed_random_parallel <- function(A, d, maxiter=20, rand_inits = 10, seed = 777, cl_numClusters = 12) {
+  #' 
+  #' Joint embedding of graphs (parallel implementation)
+  #' 
+  #' Wrapper for joint embedding method to run multiple random initialization values in parallel.
+  #' 
+  #' @author Jesús Arroyo
+  #' @param A a list of adjacency matrices with the same size n x n
+  #' @param d number of embedding dimensions
+  #' @param rand_inits number of random initializations
+  #' @param maxiter the maximum number of iterations on each step
+  #' @seed seed for random number generator
+  #' @cl_numClusters number of clusters available to run in parallel
+  #' 
+  #' @return A list containing the result of the embeding
+  #' \item{best_result}{joint embedding result with the smallest objective function value}
+  #' \item{results}{a list containing all random initialization joint embedding results}
+  #' \item{objective function}{array containing the objective function of each random initialization. A smaller value indicates a better local optimum.}
   require(parallel)
   cl <- makeCluster(cl_numClusters)
   clusterExport(cl = cl, varlist = list("multidembed", "onedembed", "onedembed_l", "cptobj"))
@@ -97,11 +113,15 @@ multidembed_random_parallel <- function(A, d, maxiter=20, rand_inits = 10, seed 
 }
 
 
-#' Function to calculate the loadings for a given list of graphs A and 
-#' @param A list of adjacency matrices of size n x n
-#' @param h latent positions of JEG, of size n x d
-#' @return Matrix of loadings for graphs in A
-multiembed_test <- function(A, h) {
+multidembed_test <- function(A, h) {
+  #' Joint embedding of graphs - out-of-sample
+  #' 
+  #' Function to calculate the out-of-sample value of the embedding for a new graph A, given latent positions h
+  #' 
+  #' @author Jesús Arroyo
+  #' @param A a list of adjacency matrices with the same size n x n
+  #' @param h matrix of latent positions, size n x d
+  #' @return a matrix of loadings for graphs in A
   Gamma <- crossprod(h)^2
   Psi <- sapply(A, function(a) 
     diag(t(h) %*% crossprod(a, h)))
